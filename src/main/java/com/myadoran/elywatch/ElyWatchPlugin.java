@@ -1,7 +1,6 @@
 package com.myadoran.elywatch;
 
 import java.awt.*;
-import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -25,13 +24,12 @@ import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
-import net.runelite.client.plugins.driftnet.DriftNetConfig;
 
 @PluginDescriptor(
 		name = "ElyWatch",
 		description = "Handles Ely watching duties",
 		tags = {"shield", "ely"},
-		enabledByDefault = false
+		enabledByDefault = true
 )
 
 public class ElyWatchPlugin extends Plugin
@@ -153,11 +151,11 @@ public class ElyWatchPlugin extends Plugin
 					.header("accept", "application/json")
 					.method(method, HttpRequest.BodyPublishers.ofString(""))
 					.build();
-			HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+			client.send(request, HttpResponse.BodyHandlers.ofString());
 		}
 		catch (Exception e)
 		{
-			System.out.println("An error has occurred in ElyWatch.");
+			sendChatMessage(Color.red, "Something has gone wrong in ElyWatch.");
 		}
 	}
 
