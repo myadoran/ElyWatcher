@@ -154,7 +154,6 @@ public class ElyWatchPlugin extends Plugin
 					.method(method, HttpRequest.BodyPublishers.ofString(""))
 					.build();
 			HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-			sendChatMessage(Color.pink, String.valueOf(response.statusCode()));
 		}
 		catch (Exception e)
 		{
