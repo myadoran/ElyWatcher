@@ -1,10 +1,8 @@
 package com.myadoran.elywatch;
 
 import java.awt.*;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.io.IOException;
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
 import com.google.inject.Provides;
@@ -24,6 +22,7 @@ import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
+import okhttp3.*;
 
 @PluginDescriptor(
 		name = "ElyWatch",
@@ -42,6 +41,9 @@ public class ElyWatchPlugin extends Plugin
 
 	@Inject
 	private ChatMessageManager chatMessageManager;
+
+	@Inject
+	private OkHttpClient httpClient;
 
 	@Provides
 	ElyWatchConfig provideConfig(ConfigManager configManager)
@@ -145,13 +147,22 @@ public class ElyWatchPlugin extends Plugin
 				url = config.apiHostUnEquip();
 				method = String.valueOf(config.apiMethodUnEquip());
 			}
-			var client = HttpClient.newHttpClient();
-			HttpRequest request = HttpRequest.newBuilder(
-							URI.create(url))
+			RequestBody body = RequestBody.create(null, new byte[0]);
+			Request request = new Request.Builder()
+					.url(url)
 					.header("accept", "application/json")
-					.method(method, HttpRequest.BodyPublishers.ofString(""))
+					.addHeader("Authorization", config.bearerToken())
+					.method(method, body)
 					.build();
-			client.send(request, HttpResponse.BodyHandlers.ofString());
+			httpClient.newCall(request).enqueue(new Callback() {
+				@Override
+				public void onResponse(Call call, Response response) throws IOException {
+				}
+				@Override
+				public void onFailure(Call call, IOException e) {
+					sendChatMessage(Color.red, "Network error in ElyWatch.");
+				}
+			});
 		}
 		catch (Exception e)
 		{
